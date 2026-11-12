@@ -20,7 +20,7 @@
   'use strict';
   window.App = window.App || {};
 
-  var GEN = 8;                 // hochzählen für den nächsten globalen Reset (8 = großer Sommer-Reset: Geld/Bank/Depot/Tickets + Level, Spiel-Stats bleiben)
+  var GEN = 9;                 // hochzählen für den nächsten globalen Reset (9 = HARD-RESET 12.11.2026: ALLES auf null inkl. Stats, Ranglisten, Admin/Mod-Rechte)
 
   // Zeitpunkt des großen Sommer-Resets (GEN 8, 24.07.2026). Cloud-Daten, die VOR
   // diesem Zeitpunkt entstanden sind — Postfach-Zahlungen (tournament-host.js),
@@ -29,7 +29,7 @@
   // alten, kaputten Ökonomie und werden beim LESEN ignoriert. So braucht der Reset
   // keinen Massen-Schreibzugriff auf die Datenbank: jeder Client kappt sich selbst,
   // und die Alt-Reste sind ab sofort unsichtbar.
-  var RESET_AT = 1784898577139;
+  var RESET_AT = 1794501207430;   // GEN 9: Hard-Reset 12.11.2026
   var KEY_GEN = 'gj_hard_gen';
   var CASINO_START = (App.Coins && App.Coins.START) || 1000;
 
@@ -61,6 +61,7 @@
       App.Storage.set('gj_gifted_total', 0);   // "bisher verschenkt" (Geld-Rekord) nullen
       App.Storage.remove('gj_pu_inv');         // Power-Up-Inventar leeren (remove statt set(null): get() soll den Fallback liefern)
       App.Storage.remove('gj_pu_fx');          // aktive Power-Up-Effekte beenden
+      App.Storage.remove('gj_admin_session');  // GEN 9: niemand behält den Admin-Modus
     }
     // Level/XP/Quests + Stats-Erhalt macht progress.js (RESET_GEN). Danach die
     // In-Memory-Stände dem gekappten Storage nachziehen.
@@ -140,6 +141,10 @@
     c.tickets = 1;
     c.giftedTotal = 0;
     c.sv = freshSv();
+    c.progress = null;           // GEN 9: Level/XP/Quests/Stats komplett neu
+    // GEN 9: alle Admin-Sonderrechte weg (Mod, Rigging, Grants) — nur Banns bleiben.
+    var ban = c.admin && c.admin.banUntil;
+    c.admin = ban ? { banUntil: ban } : null;
     c.hardGen = GEN;
     return c;
   }

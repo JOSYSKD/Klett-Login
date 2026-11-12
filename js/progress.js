@@ -27,7 +27,7 @@
   // Gen 10 (großer Sommer-Reset): Level/XP/Quests auf null, aber die SPIEL-Stats
   // (Runden, Siege, Niederlagen, Serien, gespielte Spiele) bleiben erhalten — nur
   // die GELD-Rekorde (gesetzt/gewonnen/größter Gewinn) werden mitgenullt.
-  var RESET_GEN = 10;
+  var RESET_GEN = 11;   // 11 = Hard-Reset 12.11.2026: auch alle Spiel-Stats auf null
 
   function freshStats() {
     return {
@@ -52,7 +52,7 @@
     // dauerhaft erfüllt hielten. Durch die behaltenen Stats bereits erfüllte Quests
     // markiert der checkQuests-Backfill (unten) nur als abgeholt (bf), ohne Auszahlung.
     if ((Number(s.resetGen) || 0) < RESET_GEN) {
-      var keep = Object.assign(freshStats(), (s.stats && typeof s.stats === 'object') ? s.stats : {});
+      var keep = freshStats();   // GEN 11: Stats werden NICHT mehr übernommen
       keep.wagered = 0; keep.won = 0; keep.biggestWin = 0;
       ['rounds', 'wins', 'losses', 'streak', 'maxStreak'].forEach(function (k) {
         var v = Math.round(Number(keep[k]) || 0);
@@ -61,7 +61,7 @@
       if (keep.streak > keep.maxStreak) keep.maxStreak = keep.streak;
       if (!keep.games || typeof keep.games !== 'object') keep.games = {};
       if (!keep.gameWins || typeof keep.gameWins !== 'object') keep.gameWins = {};
-      s = { xp: 0, stats: keep, quests: {}, lastDaily: s.lastDaily || '', daily: s.daily || [], resetGen: RESET_GEN };
+      s = { xp: 0, stats: keep, quests: {}, lastDaily: '', daily: [], resetGen: RESET_GEN };
       if (App.Storage) App.Storage.set(KEY, s);
       return s;
     }
