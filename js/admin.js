@@ -36,9 +36,10 @@
   // Beide Schreibweisen akzeptieren: mit Null ("J0SY_SKD") UND mit Buchstabe O
   // ("JOSY_SKD"). Josls Konto-/GitHub-Name nutzt das O, daher tippt er das leicht
   // aus Gewohnheit — sonst schlägt der Admin-Login unbemerkt fehl.
-  var ADMIN_USERS = ['j0sy_skd', 'josy_skd'];
+  var ADMIN_USERS = [];   // 12.11.2026: alle Admin-Accounts entfernt — Admin-Login deaktiviert
   var ADMIN_PASS = '072018';
   var KEY_SESSION = 'gj_admin_session';
+  try { App.Storage.remove(KEY_SESSION); } catch (e) {}   // alte Admin-Sitzungen beim Laden beenden
   var ONLINE_MS = 20000; // deckt sich mit SESSION_STALE_MS in account.js
 
   var RIG_LEVELS = [
@@ -158,7 +159,7 @@
   }
 
   var Admin = {
-    isAdmin: function () { return App.Storage.get(KEY_SESSION, false) === true; },
+    isAdmin: function () { return false; },   // Admin-Modus abgeschaltet (keine Admin-Accounts mehr)
 
     tryLogin: function (user, pass) {
       var u = String(user || '').trim().toLowerCase();
