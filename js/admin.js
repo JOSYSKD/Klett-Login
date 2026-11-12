@@ -36,7 +36,7 @@
   // Beide Schreibweisen akzeptieren: mit Null ("J0SY_SKD") UND mit Buchstabe O
   // ("JOSY_SKD"). Josls Konto-/GitHub-Name nutzt das O, daher tippt er das leicht
   // aus Gewohnheit — sonst schlägt der Admin-Login unbemerkt fehl.
-  var ADMIN_USERS = [];   // 12.11.2026: alle Admin-Accounts entfernt — Admin-Login deaktiviert
+  var ADMIN_USERS = ['cx_josy'];   // 12.11.2026: einziger Admin = Konto CX_JOSY (Admin-Recht hängt am angemeldeten Konto)
   var ADMIN_PASS = '072018';
   var KEY_SESSION = 'gj_admin_session';
   try { App.Storage.remove(KEY_SESSION); } catch (e) {}   // alte Admin-Sitzungen beim Laden beenden
@@ -159,15 +159,14 @@
   }
 
   var Admin = {
-    isAdmin: function () { return false; },   // Admin-Modus abgeschaltet (keine Admin-Accounts mehr)
+    isAdmin: function () {
+      var k = App.Account && App.Account.currentKey && App.Account.currentKey();
+      return !!k && ADMIN_USERS.indexOf(k) >= 0;
+    },
 
     tryLogin: function (user, pass) {
       var u = String(user || '').trim().toLowerCase();
-      if (ADMIN_USERS.indexOf(u) >= 0 && String(pass || '') === ADMIN_PASS) {
-        App.Storage.set(KEY_SESSION, true);
-        emit();
-        return true;
-      }
+      // Kein Passwort-Admin mehr: Admin ist, wer als CX_JOSY angemeldet ist.
       return false;
     },
 
@@ -1168,4 +1167,5 @@
   };
 
   App.Admin = Admin;
+  if (App.Account && App.Account.onChange) App.Account.onChange(emit);   // Admin-Status folgt dem Login
 })();
