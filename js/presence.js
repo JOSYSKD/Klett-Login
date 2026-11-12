@@ -116,6 +116,7 @@
     // Eingeloggte Konten haben ihr eigenes Bann/Nachrichten/Rig-Handling in
     // account.js — hier nur den Online-Status des Geräts mitschicken.
     var loggedIn = App.Account.isLoggedIn && App.Account.isLoggedIn();
+    if (!loggedIn) return;   // Kontopflicht: Gäste melden sich nicht mehr an
     var id = deviceId();
     App.Account.presenceGet(id).then(function (rec) {
       var admin = (rec && rec.admin) || {};

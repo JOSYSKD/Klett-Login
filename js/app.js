@@ -464,6 +464,12 @@
         el('button', { class: 'btn btn-ghost back', type: 'button', onclick: function () { go('/'); } }, ['← Menü']),
         el('h2', { class: 'page-title neon' }, ['👤 Profil'])
       ]));
+      // Kontopflicht: ohne Login NUR Anmelden/Registrieren zeigen.
+      if (!App.Account.current()) {
+        container.appendChild(el('p', { class: 'lb-hint' }, ['🔒 Zum Spielen brauchst du ein Konto — melde dich an oder erstelle ein neues.']));
+        container.appendChild(accountCard());
+        return;
+      }
       // Anpassbare Profilkarte + Kosmetik-Editor (Level-Freischaltungen)
       if (App.ProfileCard) {
         var cardHolder = el('div');
@@ -722,9 +728,27 @@
     })
     .setNotFound(renderMenu);
 
+  /* ---------- Kontopflicht: keine Gäste mehr (12.11.2026) ----------
+   * Ohne angemeldetes Konto ist nur /profile (Anmelden/Registrieren) erreichbar.
+   * Nach dem Login geht es zurück zur ursprünglich gewünschten Seite. */
+  var wantedPath = null;
+  App.Router.guard = function (path) {
+    if (!App.Account || App.Account.current()) return null;
+    if (path.split('?')[0] === '/profile') return null;
+    if (!wantedPath) wantedPath = path;
+    return '/profile';
+  };
+  var wasLoggedIn = !!(App.Account && App.Account.current());
+  if (App.Account) App.Account.onChange(function () {
+    var now = !!App.Account.current();
+    if (now === wasLoggedIn) return;
+    wasLoggedIn = now;
+    if (now) { var t = wantedPath || '/'; wantedPath = null; if (App.Router.current() === '/profile') App.Router.go(t); }
+    else App.Router.render();
+  });
+
   function boot() {
     syncBalance();
-    askNameIfNeeded();
     App.Router.start();
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);

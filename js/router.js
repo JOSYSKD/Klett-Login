@@ -41,6 +41,11 @@
         currentCleanup = null;
       }
       var path = this.current();
+      // Kontopflicht (12.11.2026): ohne Login nur die Anmeldeseite.
+      if (typeof this.guard === 'function') {
+        var redirect = this.guard(path);
+        if (redirect && redirect !== path) { this.go(redirect); return; }
+      }
       var segments = path.split('?')[0].split('/').filter(Boolean);
       for (var i = 0; i < routes.length; i++) {
         var params = routes[i].match(segments);
